@@ -52,6 +52,10 @@ public class TextServer {
                     String option = reader.readLine();
                     System.out.println("Received option: " + option);
 
+                    if (option == null) {
+                        break;
+                    }
+
                     switch (option) {
                         case "0":
                             // Handle login
@@ -100,6 +104,11 @@ public class TextServer {
                 String password = reader.readLine().trim();
                 System.out.println("Login attempt with password: " + password);
 
+                if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
+                    writer.println("Access Denied – Username/Password Incorrect");
+                    continue;
+                }
+
                 synchronized (userCredentials) {
                     if (userCredentials.containsKey(username) && userCredentials.get(username).equals(password)) {
                         writer.println("Access Granted. Welcome, " + username + "!");
@@ -111,6 +120,10 @@ public class TextServer {
             }
         }
 
+
+
+
+
         private void sendUserList(PrintWriter writer) {
             synchronized (userCredentials) {
                 writer.println("User List:");
@@ -121,6 +134,8 @@ public class TextServer {
             }
         }
 
+
+
         private void handleSendMessage(BufferedReader reader, PrintWriter writer, String sender) throws IOException {
             if (sender == null) {
                 writer.println("Message failed: You must be logged in to send messages.");
@@ -130,6 +145,11 @@ public class TextServer {
             writer.println("Enter the recipient's username:");
             String recipient = reader.readLine().trim();
             System.out.println("Received recipient: " + recipient);
+
+            if (recipient == null || recipient.isEmpty()) {
+                writer.println("Message failed: Invalid recipient.");
+                return;
+            }
 
             writer.println("Enter your message:");
             String message = reader.readLine().trim();
@@ -151,6 +171,9 @@ public class TextServer {
             }
         }
 
+
+
+
         private void sendUserMessages(PrintWriter writer, String username) {
             synchronized (userMessages) {
                 List<String> messages = userMessages.get(username);
@@ -160,6 +183,7 @@ public class TextServer {
                         writer.println(message);
                     }
                     writer.println(); // Send an empty line to indicate the end of the messages
+                    messages.clear(); // Clear messages after retrieval
                 } else {
                     writer.println("You have no new messages.");
                     writer.println(); // Ensure an empty line is sent to signify end of response
