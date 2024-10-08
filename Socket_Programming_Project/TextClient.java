@@ -21,6 +21,12 @@ public class TextClient {
             while (isRunning) {
                 // Display menu
                 System.out.println("Menu:");
+                System.out.println("0. Connect to the server");
+                System.out.println("1. Get the user list");
+                System.out.println("2. Send a message");
+                System.out.println("3. Get my messages");
+                System.out.println("4. Exit");
+                System.out.print("Choose an option: ");
 
                 option = scanner.nextLine();
                 writer.println(option);
@@ -53,17 +59,20 @@ public class TextClient {
                     } else if (serverResponse.equals("Please enter your password:")) {
                         System.out.print("Enter password: ");
                         writer.println(scanner.nextLine().trim());
+                    } else if (serverResponse.contains("Access Granted") || serverResponse.contains("Access Denied")) {
+                        break; // Exit loop after login attempt
                     }
                 }
                 break;
             case "1": // Get user list
-                System.out.println("Fetching");
+                System.out.println("Fetching user list...");
                 while ((serverResponse = reader.readLine()) != null) {
                     if (serverResponse.isEmpty()) {
                         break; // Exit the loop after receiving the full list
                     }
                     System.out.println(serverResponse);
                 }
+                System.out.println("End of user list.");
                 break;
             case "2": // Send message
                 while ((serverResponse = reader.readLine()) != null) {
@@ -79,6 +88,9 @@ public class TextClient {
                     } else if (serverResponse.contains("Message successfully sent") || serverResponse.contains("User not found")) {
                         System.out.println("Server: " + serverResponse);
                         break; // Exit the loop after the message is processed
+                    } else if (serverResponse.equals("Message failed: Invalid input")) {
+                        System.out.println("Failed to send message. Please try again.");
+                        break;
                     }
                 }
                 break;
@@ -93,7 +105,7 @@ public class TextClient {
                 System.out.println("End of messages.");
                 break;
             default:
-                System.out.println("Invalid option");
+                System.out.println("Invalid option. Please try again.");
                 break;
         }
     }
